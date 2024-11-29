@@ -15,8 +15,8 @@ internal class PatchShipSpeed
 	private static void RFM_FixedUpdate(ref SpaceGame.Ship.ShipMotorModule.RiverForceModule __instance)
 	{
 		var self = __instance;
-		self.settings.minRiverSpeed = 30f;
-		self.settings.strength = 3f;
+		self.settings.minRiverSpeed = 20f;
+		self.settings.strength = 2f;
 		Tools.MaybeLogInfo(3, $"RiverForce bankStrength={self.bankStrength} minRiverSpeed={self.settings.minRiverSpeed} strength={self.settings.strength}");
 	}
 

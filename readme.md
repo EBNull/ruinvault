@@ -52,7 +52,7 @@ Run the game normally.
 
 - Load screens that fade to/from black screens are much faster.
 - Quote screens (start of game; change location text) now display text immediately and let you continue immediately.
-- Title screen is skipped on Desktop (not Steam Deck)
+- Title and splash screens are skipped 
 - Story scenes can be skipped by `left clicking` (only). This is untested.
 
 #### Fast Movement & Animation Hotkey
@@ -71,7 +71,7 @@ Run the game normally.
 - You can now exit the sailing map without setting a destination.
 - The time before a reset prompt coming up when missing a return has decreased.
 - The minimum speed on rivers has been increased, but this is not well tested.
-- Untested: ruins appear more frequently
+- Ruins appear a bit more frequently.
 
 #### Multiple Save Files
 
