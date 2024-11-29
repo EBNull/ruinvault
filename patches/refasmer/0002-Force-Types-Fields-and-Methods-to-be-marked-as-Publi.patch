@@ -1,0 +1,70 @@
+From a6b0da532b42c125c9adee6843f9874ec3311992 Mon Sep 17 00:00:00 2001
+From: Elise Burke <elise.null+git@gmail.com>
+Date: Thu, 28 Nov 2024 20:32:45 -0500
+Subject: [PATCH 2/2] Force Fields and Methods to be marked as Public
+ in the generated refasm
+
+---
+ src/Refasmer/Importer/ImportLogic.cs | 24 +++++++++++++++++++++---
+ 1 file changed, 21 insertions(+), 3 deletions(-)
+
+diff --git a/src/Refasmer/Importer/ImportLogic.cs b/src/Refasmer/Importer/ImportLogic.cs
+index 9646696..c3c1c2e 100644
+--- a/src/Refasmer/Importer/ImportLogic.cs
++++ b/src/Refasmer/Importer/ImportLogic.cs
+@@ -33,11 +33,33 @@ public partial class MetadataImporter
+         }
+     }
+ 
++    private System.Reflection.TypeAttributes MakePublic(System.Reflection.TypeAttributes src) {
++        // Doing this without checking for duplicates can result in an error like this:
++        //    error CS0433: The type 'Type' exists in both 'Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null' and 'Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null'
++        // Thus, we let Types stay private for now.
++        return src;
++        //src &= ~System.Reflection.TypeAttributes.VisibilityMask;
++        //src |= System.Reflection.TypeAttributes.Public;
++        //return src;
++    }
++
++    private System.Reflection.FieldAttributes MakePublic(System.Reflection.FieldAttributes src) {
++        src &= ~System.Reflection.FieldAttributes.FieldAccessMask;
++        src |= System.Reflection.FieldAttributes.Public;
++        return src;
++    }
++
++    private System.Reflection.MethodAttributes MakePublic(System.Reflection.MethodAttributes src) {
++        src &= ~System.Reflection.MethodAttributes.MemberAccessMask;
++        src |= System.Reflection.MethodAttributes.Public;
++        return src;
++    }
++
+     private TypeDefinitionHandle ImportTypeDefinitionSkeleton( TypeDefinitionHandle srcHandle )
+     {
+         var src = _reader.GetTypeDefinition(srcHandle);
+ 
+-        var dstHandle = _builder.AddTypeDefinition(src.Attributes, ImportValue(src.Namespace), ImportValue(src.Name),
++        var dstHandle = _builder.AddTypeDefinition(MakePublic(src.Attributes), ImportValue(src.Namespace), ImportValue(src.Name),
+             Import(src.BaseType), NextFieldHandle(), NextMethodHandle());
+ 
+         Trace?.Invoke($"Imported {_reader.ToString(src)} -> {RowId(dstHandle):X}");
+@@ -73,7 +91,7 @@ public partial class MetadataImporter
+                 continue;
+             }
+ 
+-            var dstFieldHandle = _builder.AddFieldDefinition(srcField.Attributes, ImportValue(srcField.Name),
++            var dstFieldHandle = _builder.AddFieldDefinition(MakePublic(srcField.Attributes), ImportValue(srcField.Name),
+                 ImportSignatureWithHeader(srcField.Signature));
+             _fieldDefinitionCache.Add(srcFieldHandle, dstFieldHandle);
+             Trace?.Invoke($"Imported {_reader.ToString(srcFieldHandle)} -> {RowId(dstFieldHandle):X}");
+@@ -111,7 +129,7 @@ public partial class MetadataImporter
+             var isAbstract = srcMethod.Attributes.HasFlag(MethodAttributes.Abstract);
+             var bodyOffset = !isAbstract && MakeMock ? MakeMockBody(srcMethodHandle) : -1;
+ 
+-            var dstMethodHandle = _builder.AddMethodDefinition(srcMethod.Attributes, srcMethod.ImplAttributes,
++            var dstMethodHandle = _builder.AddMethodDefinition(MakePublic(srcMethod.Attributes), srcMethod.ImplAttributes,
+                 ImportValue(srcMethod.Name), dstSignature, bodyOffset, NextParameterHandle());
+             _methodDefinitionCache.Add(srcMethodHandle, dstMethodHandle);
+             Trace?.Invoke($"Imported {_reader.ToString(srcMethod)} -> {RowId(dstMethodHandle):X}");
+-- 
+2.43.0
+

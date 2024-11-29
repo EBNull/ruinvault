@@ -1,0 +1,77 @@
+From 0a62093cbda0d6eef310910795093eefe8125412 Mon Sep 17 00:00:00 2001
+From: Elise Burke <elise.null+git@gmail.com>
+Date: Thu, 28 Nov 2024 20:31:25 -0500
+Subject: [PATCH 1/2] Treat NuGet warnings as errors for all projects
+ (NU1901;NU1902;NU1903;NU1904)
+
+---
+ src/Refasmer/Refasmer.csproj                           | 1 +
+ src/RefasmerCliTool/RefasmerCliTool.csproj             | 1 +
+ src/RefasmerExe/RefasmerExe.csproj                     | 1 +
+ tests/Refasmer.Tests/Refasmer.Tests.csproj             | 1 +
+ tests/RefasmerTestAssembly/RefasmerTestAssembly.csproj | 1 +
+ 5 files changed, 5 insertions(+)
+
+diff --git a/src/Refasmer/Refasmer.csproj b/src/Refasmer/Refasmer.csproj
+index 3d9512c..8919a8c 100644
+--- a/src/Refasmer/Refasmer.csproj
++++ b/src/Refasmer/Refasmer.csproj
+@@ -10,6 +10,7 @@
+         <GenerateDocumentationFile>true</GenerateDocumentationFile>
+         <TargetFrameworks>net5.0;net6.0;netstandard2.0;netstandard2.1</TargetFrameworks>
+         <NoWarn>CS1591</NoWarn>
++        <WarningsNotAsErrors>NU1901;NU1902;NU1903;NU1904</WarningsNotAsErrors>
+     </PropertyGroup>
+     <PropertyGroup>
+         <PackageId>JetBrains.Refasmer</PackageId>
+diff --git a/src/RefasmerCliTool/RefasmerCliTool.csproj b/src/RefasmerCliTool/RefasmerCliTool.csproj
+index 9d3eb3f..97a4af4 100644
+--- a/src/RefasmerCliTool/RefasmerCliTool.csproj
++++ b/src/RefasmerCliTool/RefasmerCliTool.csproj
+@@ -5,6 +5,7 @@
+         <RootNamespace>JetBrains.Refasmer.CliTool</RootNamespace>
+         <TargetFrameworks>net5.0;net6.0;netcoreapp3.1</TargetFrameworks>
+         <RollForward>Major</RollForward>
++        <WarningsNotAsErrors>NU1901;NU1902;NU1903;NU1904</WarningsNotAsErrors>
+     </PropertyGroup>
+     <PropertyGroup>
+         <PackageId>JetBrains.Refasmer.CliTool</PackageId>
+diff --git a/src/RefasmerExe/RefasmerExe.csproj b/src/RefasmerExe/RefasmerExe.csproj
+index 9923ac2..6ae5662 100644
+--- a/src/RefasmerExe/RefasmerExe.csproj
++++ b/src/RefasmerExe/RefasmerExe.csproj
+@@ -5,6 +5,7 @@
+         <RootNamespace>JetBrains.Refasmer</RootNamespace>
+         <TargetFrameworks>net5.0;net6.0;netcoreapp3.1;net461;net7.0</TargetFrameworks>
+         <LangVersion>Latest</LangVersion>
++        <WarningsNotAsErrors>NU1901;NU1902;NU1903;NU1904</WarningsNotAsErrors>
+     </PropertyGroup>
+ 
+     <ItemGroup>
+diff --git a/tests/Refasmer.Tests/Refasmer.Tests.csproj b/tests/Refasmer.Tests/Refasmer.Tests.csproj
+index 05e399a..4dccfb8 100644
+--- a/tests/Refasmer.Tests/Refasmer.Tests.csproj
++++ b/tests/Refasmer.Tests/Refasmer.Tests.csproj
+@@ -7,6 +7,7 @@
+         <Nullable>enable</Nullable>
+ 
+         <IsPackable>false</IsPackable>
++        <WarningsNotAsErrors>NU1901;NU1902;NU1903;NU1904</WarningsNotAsErrors>
+     </PropertyGroup>
+ 
+     <ItemGroup>
+diff --git a/tests/RefasmerTestAssembly/RefasmerTestAssembly.csproj b/tests/RefasmerTestAssembly/RefasmerTestAssembly.csproj
+index 3dae7b0..36c6153 100644
+--- a/tests/RefasmerTestAssembly/RefasmerTestAssembly.csproj
++++ b/tests/RefasmerTestAssembly/RefasmerTestAssembly.csproj
+@@ -6,6 +6,7 @@
+         <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+         <ProduceReferenceAssembly>true</ProduceReferenceAssembly>
+         <NoWarn>CS0169</NoWarn>
++        <WarningsNotAsErrors>NU1901;NU1902;NU1903;NU1904</WarningsNotAsErrors>
+     </PropertyGroup>
+ 
+ </Project>
+-- 
+2.43.0
+

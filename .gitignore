@@ -1,0 +1,6 @@
+bin
+obj
+dist
+.jj
+refasm/*
+!refasm/readme.md

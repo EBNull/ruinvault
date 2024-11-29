@@ -1,0 +1,52 @@
+<Project Sdk="Microsoft.NET.Sdk">
+    <PropertyGroup>
+        <TargetFramework>net35</TargetFramework>
+        <!-- https://learn.microsoft.com/en-us/dotnet/standard/frameworks#supported-target-frameworks -->
+        <LangVersion>12.0</LangVersion>
+        <!-- https://learn.microsoft.com/en-us/dotnet/csharp/language-reference/language-versioning#defaults -->
+        <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+        <Nullable>enable</Nullable>
+    </PropertyGroup>
+    <PropertyGroup>
+        <AssemblyName>ruinvault</AssemblyName>
+        <Product>ruinvault</Product>
+        <Version>0.0.0</Version>
+        <RootNamespace>ruinvault</RootNamespace>
+    </PropertyGroup>
+    <PropertyGroup>
+        <RestoreAdditionalProjectSources>            
+            https://api.nuget.org/v3/index.json;
+            https://nuget.bepinex.dev/v3/index.json;
+            https://nuget.samboy.dev/v3/index.json
+        </RestoreAdditionalProjectSources>
+    </PropertyGroup>
+    <ItemGroup>
+        <Reference Include="HeavensGate">
+          <HintPath>..\refasm\Assembly-CSharp.dll</HintPath>
+          <!-- HintPath>C:\Program Files (x86)\Steam\steamapps\common\Heaven's Vault\Heaven's Vault_Data\Managed\Assembly-CSharp.dll.refasm.dll</HintPath -->
+            <!-- HintPath>C:\Program Files (x86)\Steam\steamapps\common\Heaven's Vault\Heaven's Vault_Data\Managed\Assembly-CSharp.dll</HintPath -->
+        </Reference>
+        <Reference Include="HeavensGate-firstpass">
+          <HintPath>..\refasm\Assembly-CSharp-firstpass.dll</HintPath>
+          <!-- HintPath>C:\Program Files (x86)\Steam\steamapps\common\Heaven's Vault\Heaven's Vault_Data\Managed\Assembly-CSharp-firstpass.dll.refasm.dll</HintPath -->
+            <!-- HintPath>C:\Program Files (x86)\Steam\steamapps\common\Heaven's Vault\Heaven's Vault_Data\Managed\Assembly-CSharp-firstpass.dll</HintPath -->
+        </Reference>
+    </ItemGroup>
+    <ItemGroup>
+        <PackageReference Include="BepInEx.Analyzers"
+                          Version="1.*"
+                          PrivateAssets="all" />
+        <PackageReference Include="BepInEx.Core"
+                          Version="5.*" />
+        <PackageReference Include="BepInEx.PluginInfoProps"
+                          Version="2.*" />
+        <PackageReference Include="UnityEngine.Modules"
+                          Version="2017.4.30"
+                          IncludeAssets="compile" />
+    </ItemGroup>
+    <ItemGroup Condition="'$(TargetFramework.TrimEnd(`0123456789`))' == 'net'">
+        <PackageReference Include="Microsoft.NETFramework.ReferenceAssemblies"
+                          Version="1.0.2"
+                          PrivateAssets="all" />
+    </ItemGroup>
+</Project>
