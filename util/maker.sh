@@ -115,7 +115,7 @@ makemakefile() {
   done
 
   tgts[build]="refasm"
-  tgts[run]="dist"
+  tgts[run]="dist install"
   tgts[dist]="build"
   tgts[install]="build dist"
   tgts["install-full"]="build dist"

@@ -22,7 +22,7 @@ install-full: build dist
 	@./util/maker.sh makeinstall-full
 
 .PHONY: run
-run: dist
+run: dist install
 	@./util/maker.sh makerun
 
 .PHONY: logs
