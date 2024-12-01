@@ -12,6 +12,7 @@ public class Plugin : BaseUnityPlugin
 	public static Type[] patchClasses = [
 		//typeof(PatchSetEditorFlag),
 		typeof(PatchEnableSaveSlots),
+		typeof(PatchAlsoSaveRawSaves),
 		typeof(PatchNoSteamRestart),
 		//typeof(PatchRiverAutoReset),
 		typeof(PatchShipSpeed), // maybe doesn't work? I haven't done a lot of a/b testing
