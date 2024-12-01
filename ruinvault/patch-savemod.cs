@@ -1,58 +1,72 @@
 
 using System;
-using System.Collections.Generic;
+using System.Data.SqlTypes;
+using System.Drawing.Text;
 using System.IO;
-using BepInEx;
-using BepInEx.Logging;
 using HarmonyLib;
+using SpaceGame.Ship;
 
 namespace ruinvault;
 
-internal class PatchEnableSaveSlots
+class PatchEnableSaveSlots
 {
-	// Only the zeroth (unnumbered) slot will sync to steam - https://steamdb.info/app/774201/ufs/
-	static int saveSlot = 2;
-
-	static void PrefixBasenameWithSlot(ref string fp, int slot) {
-			fp = PathUtil.ModParts(fp, (p) => {p.name=$"Slot_{slot}_{p.name}{slot}"; return p;});
-	}
-	
-	static void PostfixBasenameWithSlot(ref string fp, int slot) {
-			fp = PathUtil.ModParts(fp, (p) => {p.name=$"{p.name}_Slot_{slot}"; return p;});
-	}
-
 	[HarmonyPostfix, HarmonyPatch(typeof(Game), "savePath", MethodType.Getter)]
 	private static void get_savePath(ref string __result)
 	{
-		// Cloud saves are supported only for the barename
-		if (saveSlot != 0) {
-			// Change save filename, otherwise use default
-			PostfixBasenameWithSlot(ref __result, saveSlot);
-		}
-		Tools.MaybeLogInfo(-1, $" -> slot {saveSlot} ({__result})");
+		__result = BetterSaves.GetCurrentSaveFilename(__result);
+		Tools.MaybeLogInfo(-1, $" -> slot {BetterSaves.saveSlot} ({__result})");
 	}
 
 	[HarmonyPrefix, HarmonyPatch(typeof(DevSaveFileManager), "CreateNew")]
 	private static void get_devsavePath(ref string fileName)
 	{
-		// Change save filename
-		PrefixBasenameWithSlot(ref fileName, saveSlot);
-		Tools.MaybeLogInfo(-1, $" -> devsave slot {saveSlot} ({fileName})");
+		fileName = BetterSaves.GetCurrentDevSaveFilename(fileName);
+		Tools.MaybeLogInfo(-1, $" -> devsave slot {BetterSaves.saveSlot} ({fileName})");
 	}
 }
 
-internal class PatchAlsoSaveRawSaves
+class PatchAlsoSaveRawSaves
 {
-	static string PostfixedBasename(string fp, string pf) {
-			return PathUtil.ModParts(fp, (p) => {p.name=$"{p.name}{pf}"; return p;});
-	}
-	
 	[HarmonyPrefix, HarmonyPatch(typeof(SaveThread), "SaveDesktop")]
-	private static void SaveDesktop(SaveThread __instance, ref string saveData) {
-		var st = __instance;
-		var cryptSavePath = st.savePath;
-		var rawSavePath = PathUtil.PostfixBasename(cryptSavePath, "_raw");
-		Atomic.WriteFile(rawSavePath, saveData);
+	private static void SaveDesktop(SaveThread __instance, ref string saveData)
+	{
+		var rawSavePath = BetterSaves.GetExtraRawSaveFilename(__instance.savePath);
+		BetterSaves.WriteRawSaveFile(rawSavePath, saveData);
+		Tools.MaybeLogInfo(-1, $"Wrote raw save to {rawSavePath}");
+	}
+}
+
+class PatchLoadRawSaves
+{
+	[HarmonyPrefix, HarmonyPatch(typeof(CryptSaving), "ReadFromFile")]
+	private static bool ReadFromFile(ref string filePath, ref string? __result)
+	{
+		// This is a prefix patch to enable us to load and observe both the crypted save and raw save.
+		// We need to skip the original by returning false.
+		var cryptSavePath = filePath ?? "";
+		var rawSavePath = BetterSaves.GetExtraRawSaveFilename(cryptSavePath);
+		var csl = SaveLoader.FromAnyFile(cryptSavePath);
+		if (!Game.IsInitialized)
+		{
+			// This never happens, but it couldn't hurt?
+			Tools.LogMessage($"Loading crypted save {cryptSavePath} because game instance is not initialized");
+			__result = csl.data;
+			return false;
+		}
+		var rsl = SaveLoader.FromAnyFile(rawSavePath);
+		var sel = BetterSaves.SelectSave(csl, rsl);
+		__result = sel.file.data;
+		Tools.LogMessage(sel.reason);
+		var gsi = sel.file.GetGSI();
+		Tools.LogMessage($"Loaded gsi location is {gsi.locationName}; play time {gsi.totalPlayTime}");
+		return false;
 	}
 
+	[HarmonyPrefix, HarmonyPatch(typeof(Game), "currentLocation", MethodType.Setter)]
+	private static void set_currentLocation(ref Game __instance, ref StoryLocation __0)
+	{
+		var cl = __instance.currentLocation;
+		var cls = cl?.uniqueObjectIdentifier ?? "";
+		Tools.LogInfo($"Game setting location from {cls} to {__0?.uniqueObjectIdentifier ?? ""}");
+	}
 }

@@ -13,6 +13,7 @@ public class Plugin : BaseUnityPlugin
 		//typeof(PatchSetEditorFlag),
 		typeof(PatchEnableSaveSlots),
 		typeof(PatchAlsoSaveRawSaves),
+		typeof(PatchLoadRawSaves),
 		typeof(PatchNoSteamRestart),
 		//typeof(PatchRiverAutoReset),
 		typeof(PatchShipSpeed), // maybe doesn't work? I haven't done a lot of a/b testing
@@ -68,8 +69,8 @@ public class Plugin : BaseUnityPlugin
 		// Useful while debugging
 		if (!Tools.IsOnSteamDeck())
 		{
-			//opts.dontLockMouse = true;
-			//opts.dontPauseOnChangingApplicationFocus = true;
+			opts.dontLockMouse = true;
+			opts.dontPauseOnChangingApplicationFocus = true;
 
 			// Keep the title screen
 			opts.skipTitleScreenOnLoad = true;
@@ -80,7 +81,6 @@ public class Plugin : BaseUnityPlugin
 		//opts.skipStoryIntroFade = true;
 		opts.allowTeleportOnMap = true;
 
-
 		opts.dontRequirePlotCourseToExitPlanner = true;
 		opts.allowCheatControls = true; // H to heal
 		opts.clickToSkip = true;
@@ -88,7 +88,7 @@ public class Plugin : BaseUnityPlugin
 		opts.showStoryAsyncProgress = true;
 
 		// Set speed (hold shift to enable)
-		opts.fastScalar = 3f; // Base game is 1f, Dev default is 5f, this is somewhere in between
+		opts.fastScalar = 5f; // Base game is 1f, Dev default is 5f, this is somewhere in between
 
 		MonoSingleton<DebugOptions>.Instance.useInBuilds = true;
 		MonoSingleton<DebugOptions>.Instance.enabled = true;

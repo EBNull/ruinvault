@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Reflection;
 using System.Runtime.CompilerServices;
+using System.Runtime.InteropServices;
 using System.Threading;
 using BepInEx;
 using BepInEx.Logging;
@@ -129,5 +130,12 @@ public static class Tools
 		var sf = st.GetFrame(back + 1);
 
 		return GetMethodString(sf.GetMethod());
+	}
+	
+	[DllImport("user32.dll", SetLastError = true, CharSet= CharSet.Unicode)]
+	public static extern int MessageBoxW(IntPtr hWnd, String text, String caption, uint type);
+	
+	public static void MessageBox(string title, string msg) {
+		MessageBoxW(IntPtr.Zero, msg??"", title??"", 0);
 	}
 }
