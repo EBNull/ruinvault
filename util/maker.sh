@@ -17,6 +17,7 @@ makeclean() {
   rm -rf ../dist
   rm ../refasm/Assembly-CSharp.dll
   rm ../refasm/Assembly-CSharp-firstpass.dll
+  rm ../refasm/TextMeshPro.dll
 }
 
 makepreclean() {

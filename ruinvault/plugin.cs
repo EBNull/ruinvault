@@ -14,6 +14,7 @@ public class Plugin : BaseUnityPlugin
 		typeof(PatchEnableSaveSlots),
 		typeof(PatchAlsoSaveRawSaves),
 		typeof(PatchLoadRawSaves),
+		typeof(PatchEnableDevmenu),
 		typeof(PatchNoSteamRestart),
 		//typeof(PatchRiverAutoReset),
 		typeof(PatchShipSpeed), // maybe doesn't work? I haven't done a lot of a/b testing

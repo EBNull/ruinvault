@@ -59,7 +59,7 @@ make_refasmer() {
 
 run_refasmer() {
   local SRC_DIR="${HOST_GAMEDIR}/Heaven's Vault_Data/Managed"
-  local SRC_BASE=("Assembly-CSharp.dll" "Assembly-CSharp-firstpass.dll")
+  local SRC_BASE=("Assembly-CSharp.dll" "Assembly-CSharp-firstpass.dll" "TextMeshPro.dll")
 
   local DEST_DIR="$(realpath ../refasm)"
   local DEST_DIR_WIN="$(cygpath -w "${DEST_DIR}")"

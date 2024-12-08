@@ -31,6 +31,9 @@
           <!-- HintPath>C:\Program Files (x86)\Steam\steamapps\common\Heaven's Vault\Heaven's Vault_Data\Managed\Assembly-CSharp-firstpass.dll.refasm.dll</HintPath -->
             <!-- HintPath>C:\Program Files (x86)\Steam\steamapps\common\Heaven's Vault\Heaven's Vault_Data\Managed\Assembly-CSharp-firstpass.dll</HintPath -->
         </Reference>
+        <Reference Include="TextMeshPro">
+          <HintPath>..\refasm\TextMeshPro.dll</HintPath>
+        </Reference>
     </ItemGroup>
     <ItemGroup>
         <PackageReference Include="BepInEx.Analyzers"
