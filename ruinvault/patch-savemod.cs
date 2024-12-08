@@ -28,16 +28,57 @@ class PatchEnableSaveSlots
 class PatchAlsoSaveRawSaves
 {
 	[HarmonyPrefix, HarmonyPatch(typeof(SaveThread), "SaveDesktop")]
-	private static void SaveDesktop(SaveThread __instance, ref string saveData)
+	private static bool SaveDesktop(SaveThread __instance, ref string saveData, ref string __result)
 	{
+		if (!PatchLoadRawSaves.okToSave) {
+			__result = "Skipping save because save slot message has not been accepted";
+			Tools.LogMessage(__result);
+			return false;
+		}
 		var rawSavePath = BetterSaves.GetExtraRawSaveFilename(__instance.savePath);
 		BetterSaves.WriteRawSaveFile(rawSavePath, saveData);
 		Tools.MaybeLogInfo(-1, $"Wrote raw save to {rawSavePath}");
+		return true;
 	}
 }
 
 class PatchLoadRawSaves
 {
+	static int loadCount = 0;
+	public static bool okToSave = false;
+
+	static void MaybeMessageSaveNotice(BetterSaves.SaveSelectionInfo? sel) {
+		loadCount++;
+		var slot = BetterSaves.saveSlot;
+		var maybeWarn = "";
+		if (slot != 0) {
+			maybeWarn = "<size=80%>This save file is <b>not</b> synced to the cloud.\n\n";
+		}
+		if (loadCount == 1) {
+			var ls = LoadingScreenController.Instance;
+			ls.enabled = false;
+			var filename = Path.GetFileName(Game.Instance.savePath);
+			var msg = $"\n{maybeWarn}<size=50%>Filename: {filename}\n\n<size=50%>Starting a new game (existing save not found)";
+			if (sel != null) {
+				msg = $"\n{maybeWarn}<size=50%>Filename: {Path.GetFileName(sel?.file.name)}\n\n<size=50%>{sel?.reason}";
+			}
+			GameLib.MessageBox($"Using save slot {BetterSaves.saveSlot}", msg, "Continue", () => {
+				okToSave = true;
+				ls.enabled = true;
+			}, null, () => {});
+		}
+
+	}
+
+
+	[HarmonyPostfix, HarmonyPatch(typeof(Game), "DesktopSaveFileExists")]
+	private static void DesktopSaveFileExist(ref bool __result)
+	{
+		if (!__result) {
+			MaybeMessageSaveNotice(null);
+		}
+	}
+
 	[HarmonyPrefix, HarmonyPatch(typeof(CryptSaving), "ReadFromFile")]
 	private static bool ReadFromFile(ref string filePath, ref string? __result)
 	{
@@ -59,6 +100,7 @@ class PatchLoadRawSaves
 		Tools.LogMessage(sel.reason);
 		var gsi = sel.file.GetGSI();
 		Tools.LogMessage($"Loaded gsi location is {gsi.locationName}; play time {gsi.totalPlayTime}");
+		MaybeMessageSaveNotice(sel);
 		return false;
 	}
 

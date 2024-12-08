@@ -1,4 +1,6 @@
 using System;
+using System.Collections;
+using System.Collections.Generic;
 using System.IO;
 using HarmonyLib;
 using JetBrains.Annotations;
@@ -24,7 +26,20 @@ public class BetterSaves
 
     // Only the zeroth (unnumbered) slot will sync to steam - https://steamdb.info/app/774201/ufs/
     public static int saveSlot = 2;
-
+    static BetterSaves() {
+        var env = Environment.GetEnvironmentVariables();
+        foreach(DictionaryEntry e in env) {
+           if (((string)e.Key).ToLower() == "slot") {
+                int slot = 2;
+                if (Int32.TryParse((string)e.Value, out slot)) {
+                    saveSlot = slot;
+                    Tools.LogInfo($"Using save SLOT={saveSlot} from env");
+                } else {
+                    Tools.LogError($"Could not parse save slot SLOT={e.Value}");
+                }
+           }
+        }
+    }
     public static string GetCurrentSaveFilename(string originalPath)
     {
         // Cloud saves are supported only for the barename
@@ -57,21 +72,21 @@ public class BetterSaves
         if (!rawFile.Valid())
         {
             var ret = cryptFile;
-            return new SaveSelectionInfo(ret, $"Loading crypted save {ret.name} because raw is missing or not valid");
+            return new SaveSelectionInfo(ret, $"Loading crypted save because raw is missing or not valid");
         }
         if (!cryptFile.Valid())
         {
             var ret = rawFile;
-            return new SaveSelectionInfo(ret, $"Loading raw save {ret.name} because crypt is missing or not valid");
+            return new SaveSelectionInfo(ret, $"Loading raw save because crypt is missing or not valid");
         }
         if (rawFile > cryptFile)
         {
             var ret = rawFile;
-            return new SaveSelectionInfo(ret, $"Loading raw save {ret.name} because raw is newer than crypt ({rawFile.GetPlaytime()} > {cryptFile.GetPlaytime()})");
+            return new SaveSelectionInfo(ret, $"Loading raw save because raw is newer than crypt ({rawFile.GetPlaytime()} > {cryptFile.GetPlaytime()})");
         }
         {
             var ret = cryptFile;
-            return new SaveSelectionInfo(ret, $"Loading crypt save {ret.name} because crypt is newer than raw ({cryptFile.GetPlaytime()} > {rawFile.GetPlaytime()})");
+            return new SaveSelectionInfo(ret, $"Loading crypt save because crypt is newer than raw ({cryptFile.GetPlaytime()} > {rawFile.GetPlaytime()})");
         }
     }
     /* General I/O Functions */
