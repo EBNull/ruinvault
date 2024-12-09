@@ -89,7 +89,7 @@ public class Plugin : BaseUnityPlugin
 		opts.showStoryAsyncProgress = true;
 
 		// Set speed (hold shift to enable)
-		opts.fastScalar = 5f; // Base game is 1f, Dev default is 5f, this is somewhere in between
+		opts.fastScalar = 3f; // Base game is 1f, Dev default is 5f, this is somewhere in between
 
 		MonoSingleton<DebugOptions>.Instance.useInBuilds = true;
 		MonoSingleton<DebugOptions>.Instance.enabled = true;
