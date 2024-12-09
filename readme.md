@@ -11,6 +11,9 @@ It's called `ruinvault` because you find ruins in-game, but also because if you 
 
 Behind the scenes `ruinvault` uses the [BepInEx](https://github.com/BepInEx/BepInEx) mod framework.
 
+![slot 0](docs/saveslot_0.png "Save Slot 0")
+![slot 2](docs/saveslot_2.png "Save Slot 2")
+
 ## Installation
 
 ### Common
@@ -63,6 +66,8 @@ or
 # For Windows
 %command% slot=2
 ```
+
+![Launch Options](docs/launchoptions.png "Launch Options")
 
 ##### Save Editing & DevSaves
 
