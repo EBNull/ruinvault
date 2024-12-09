@@ -5,6 +5,7 @@ using System.Drawing.Text;
 using System.IO;
 using HarmonyLib;
 using SpaceGame.Ship;
+using UnityEngine;
 
 namespace ruinvault;
 
@@ -52,23 +53,32 @@ class PatchLoadRawSaves
 		var slot = BetterSaves.saveSlot;
 		var maybeWarn = "";
 		if (slot != 0) {
-			maybeWarn = "<size=80%>This save file <b>will not</b> be synced to the cloud.\n\n";
+			maybeWarn = "<size=80%>This save file <b>will not</b> be synced to the cloud.<br>";
 		} else {
-			maybeWarn = "<size=50%>This save file <b>will</b> be synced to the cloud.\n\n";
+			maybeWarn = "<size=50%>This save file <b>will</b> be synced to the cloud.<br>";
 		}
 		if (loadCount == 1) {
 			var ls = LoadingScreenController.Instance;
 			ls.enabled = false;
 			var filename = Path.GetFileName(Game.Instance.savePath);
-			var msg = $"\n{maybeWarn}<size=50%>Filename: {filename}\n\n<size=50%>Starting a new game (existing save not found)";
+			var msg = $"{maybeWarn}<size=50%>Starting a new game at {filename}";
 			if (sel != null) {
-				msg = $"\n{maybeWarn}<size=50%>Filename: {Path.GetFileName(sel?.file.name)}\n\n<size=50%>{sel?.reason}";
+				var gi = sel?.file.GetSimpleGameData();
+				msg = $"{maybeWarn}";
+				msg += $"<size=50%>{sel?.file.Describe()}\n\n";
+				msg += $"<size=50%>Loading {Path.GetFileName(sel?.file.name)}\n{sel?.reason}";
 			}
-			msg += "\n\n<size=45%>Pass `slot=#` argument via launch options to set slot";
+			if (Tools.IsOnSteamDeck()) {
+				msg += "\n\n<size=45%>Set Steam launch options to `./hv.sh %command% -slot=#` to select slot";
+			} else {
+				msg += "\n\n<size=45%>Set Steam launch options to `%command% -slot=#` to select slot";
+			}
 			GameLib.MessageBox($"Using save slot {BetterSaves.saveSlot}", msg, "Continue", () => {
 				okToSave = true;
 				ls.enabled = true;
-			}, null, () => {});
+			}, "Exit", () => {
+				Tools.Die();
+			});
 		}
 
 	}

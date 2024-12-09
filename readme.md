@@ -5,6 +5,8 @@ ruinvault is a mod for [Heaven's Vault](https://store.steampowered.com/app/77420
 Currently most patches are around speeding up the gameplay to make additional
 playthroughs less monotonous.
 
+It also enables a multiple save slot feature (requires restarts) and easy save file editing.
+
 It's called `ruinvault` because you find ruins in-game, but also because if you use this before beating the game you could potentially ruin your experience.
 
 Behind the scenes `ruinvault` uses the [BepInEx](https://github.com/BepInEx/BepInEx) mod framework.
@@ -30,8 +32,10 @@ Extract the distribution zip to the game's directory. No files will be overwritt
 
 - Edit the game's launch options to read
   ```shell
-  ./hv.sh %command%
+  ./hv.sh %command% -slot=0
   ```
+  
+  You can ignore `-slot=0` if you don't want to use multiple save slots.
 
 ## Usage
 
@@ -41,6 +45,34 @@ Run the game normally.
 > You must run the game from Steam if you want achievements to register.
 
 ## Features:
+
+#### Multiple Save Files
+
+##### Save Slots
+
+To select a save slot, edit the game's launch options to add a `slot=` argument:
+
+```shell
+# For Steam Deck
+./hv.sh %command% slot=2
+```
+
+or
+
+```shell
+# For Windows
+%command% slot=2
+```
+
+##### Save Editing & DevSaves
+
+Save files have an associated `_raw.json` file that can be freely modified
+when the game is not running. The game will compare the time played (`totalPlayTime` field)
+between the raw version and the crypted version to select which version to load.
+
+This built-in DevSave system is also enabled. This system frequently saves raw
+saves to the `DevSaves` folder and can act as backup save files. These are never
+loaded by default - see [saves.md](docs/saves.md) for details.
 
 ### Visuals
 
@@ -73,16 +105,6 @@ Run the game normally.
 - The time before a reset prompt coming up when missing a return has decreased.
 - The minimum speed on rivers has been increased, but this is not well tested.
 - Ruins appear a bit more frequently.
-
-#### Multiple Save Files
-
-This patch enables the built-in DevSave system.
-
-See [saves.md](docs/saves.md) for more details.
-
-- `Shift + L` or `LR Bumpers + LR Triggers + DPad-Down` to toggle a menu for loading a DevSave.
-- `Left`, `Right`, `Left Bumper`, `Right Bumper` to select a DevSave.
-- `Enter` or `Gamepad X` to load a DevSave. This may result in a softlock.
 
 #### Cheats
 

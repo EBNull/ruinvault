@@ -24,6 +24,15 @@ Steam Deck
 
 `DevSaves` - A folder containing DevSaves of the form `HVSave_YYYY_MM_DD_hh_mm_ss.txt`. See below.
 
+### Slots
+
+This mod adds multiple save slot support. Filenames look like `heavensVaultSave_Slot_2.json`.
+
+### Editing Saves
+
+This mod adds "raw" saves next to the existing save files. These look like `heavensVaultSave_Slot_2_raw.json`. The game
+can also now load raw format files in place of crypt-format files.
+
 ## Contents
 
 Within each save there are five JSON dictionaries: 
@@ -61,3 +70,7 @@ DevSaves are stored in a directory named `DevSaves` next to your main encrypted 
 > There is no limit on the number of saves created automatically.
 >
 > This number of saves can grow very large.
+
+- `Shift + L` or `LR Bumpers + LR Triggers + DPad-Down` to toggle a menu for loading a DevSave.
+- `Left`, `Right`, `Left Bumper`, `Right Bumper` to select a DevSave.
+- `Enter` or `Gamepad X` to load a DevSave. This may result in a softlock.

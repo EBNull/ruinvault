@@ -2,9 +2,12 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using HarmonyLib;
 using JetBrains.Annotations;
 using Steamworks;
+using TMPro;
+using UnityEngine;
 
 namespace ruinvault;
 
@@ -94,24 +97,30 @@ public class BetterSaves
     }
     public static SaveSelectionInfo SelectSave(SaveLoader cryptFile, SaveLoader rawFile)
     {
+        string csdur = cryptFile.GetPlaytimeString();
+        string rsdur = rawFile.GetPlaytimeString();
         if (!rawFile.Valid())
         {
             var ret = cryptFile;
-            return new SaveSelectionInfo(ret, $"Loading crypted save because raw is missing or not valid");
+            return new SaveSelectionInfo(ret, $"Raw save is missing or invalid");
         }
         if (!cryptFile.Valid())
         {
             var ret = rawFile;
-            return new SaveSelectionInfo(ret, $"Loading raw save because crypt is missing or not valid");
+            return new SaveSelectionInfo(ret, $"Crypt save is missing or invalid");
         }
-        if (rawFile > cryptFile)
+        if (rawFile == cryptFile) {
+            var ret = cryptFile;
+            return new SaveSelectionInfo(ret, $"Crypt and raw saves are identical");
+        }
+        if (rawFile >= cryptFile)
         {
             var ret = rawFile;
-            return new SaveSelectionInfo(ret, $"Loading raw save because raw is newer than crypt ({rawFile.GetPlaytime()} > {cryptFile.GetPlaytime()})");
+            return new SaveSelectionInfo(ret, $"Raw save is newer (crypt = {csdur})");
         }
         {
             var ret = cryptFile;
-            return new SaveSelectionInfo(ret, $"Loading crypt save because crypt is newer than raw ({cryptFile.GetPlaytime()} > {rawFile.GetPlaytime()})");
+            return new SaveSelectionInfo(ret, $"Crypt save is newer (raw = {rsdur})");
         }
     }
     /* General I/O Functions */
@@ -175,6 +184,35 @@ public class BaseSaveLoader
         var gsi = GetGSI();
         return gsi.totalPlayTime;
     }
+    [Serializable]
+    public class SimpleGameData {
+        public string _currentLocation = "";
+        public string lastNonShipLocation = "";
+        public int numTimesGameCompleted = 0;
+    }
+    public SimpleGameData GetSimpleGameData() {
+        if (lri == null) {
+            return new SimpleGameData();
+        }
+        var ret = JsonUtility.FromJson<SimpleGameData>(lri.gameDataJSON);
+        ret._currentLocation ??= "";
+        ret.lastNonShipLocation ??= "";
+        return ret;
+    }
+    public string GetPlaytimeString() {
+        var d = GetPlaytime();
+        TimeSpan ts = TimeSpan.FromSeconds(d);
+        return $"{ts.Hours}h {ts.Minutes}m {ts.Seconds}s {ts.Milliseconds}ms ({d}s total)";
+    }
+    public string Describe() {
+        var gi = GetSimpleGameData();
+        string[] lines = [
+            $"Completed game {gi.numTimesGameCompleted} times",
+            $"currently at {gi._currentLocation}",
+            $"played for {GetPlaytimeString()}",
+        ];
+        return String.Join("; ", lines);
+    }
 }
 
 public class SaveLoader(string? name, string? data) : BaseSaveLoader(name, data)
@@ -220,6 +258,12 @@ public class SaveLoader(string? name, string? data) : BaseSaveLoader(name, data)
         if (isLess) { return false; }
         if (l == r) { return false; }
         return true;
+    }
+    public static bool operator <=(SaveLoader l, SaveLoader r) {
+        return l < r | l == r;
+    }
+    public static bool operator >=(SaveLoader l, SaveLoader r) {
+        return l > r | l == r;
     }
     public static SaveLoader FromRawFile(string filePath)
     {
