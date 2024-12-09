@@ -90,7 +90,7 @@ makepush() {
 }
 
 makerun() {
-  "${HOST_GAMEEXE}"
+  "${HOST_GAMEEXE}" -slot=${slot:-4}
 }
 
 makelogs() {

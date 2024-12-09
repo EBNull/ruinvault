@@ -52,7 +52,9 @@ class PatchLoadRawSaves
 		var slot = BetterSaves.saveSlot;
 		var maybeWarn = "";
 		if (slot != 0) {
-			maybeWarn = "<size=80%>This save file is <b>not</b> synced to the cloud.\n\n";
+			maybeWarn = "<size=80%>This save file <b>will not</b> be synced to the cloud.\n\n";
+		} else {
+			maybeWarn = "<size=50%>This save file <b>will</b> be synced to the cloud.\n\n";
 		}
 		if (loadCount == 1) {
 			var ls = LoadingScreenController.Instance;
@@ -62,6 +64,7 @@ class PatchLoadRawSaves
 			if (sel != null) {
 				msg = $"\n{maybeWarn}<size=50%>Filename: {Path.GetFileName(sel?.file.name)}\n\n<size=50%>{sel?.reason}";
 			}
+			msg += "\n\n<size=45%>Pass `slot=#` argument via launch options to set slot";
 			GameLib.MessageBox($"Using save slot {BetterSaves.saveSlot}", msg, "Continue", () => {
 				okToSave = true;
 				ls.enabled = true;

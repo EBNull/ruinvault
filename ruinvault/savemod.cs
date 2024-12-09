@@ -25,19 +25,44 @@ public class BetterSaves
     /* "Current" save slot functions */
 
     // Only the zeroth (unnumbered) slot will sync to steam - https://steamdb.info/app/774201/ufs/
-    public static int saveSlot = 2;
-    static BetterSaves() {
+    public static int saveSlot = 0;
+    static BetterSaves()
+    {
         var env = Environment.GetEnvironmentVariables();
-        foreach(DictionaryEntry e in env) {
-           if (((string)e.Key).ToLower() == "slot") {
+        foreach (DictionaryEntry e in env)
+        {
+            if (((string)e.Key).ToLower() == "slot")
+            {
                 int slot = 2;
-                if (Int32.TryParse((string)e.Value, out slot)) {
+                if (Int32.TryParse((string)e.Value, out slot))
+                {
                     saveSlot = slot;
                     Tools.LogInfo($"Using save SLOT={saveSlot} from env");
-                } else {
+                }
+                else
+                {
                     Tools.LogError($"Could not parse save slot SLOT={e.Value}");
                 }
-           }
+            }
+        }
+        var args = System.Environment.GetCommandLineArgs();
+        foreach (var arg in args) {
+            var kv = arg.Split(new char[]{'='}, 2);
+            if (kv.Length != 2) {
+                continue;
+            }
+            if (kv[0].ToLower() == "slot" || kv[0].ToLower() == "-slot") {
+                int slot = 2;
+                if (Int32.TryParse(kv[1], out slot))
+                {
+                    saveSlot = slot;
+                    Tools.LogInfo($"Using save slot={saveSlot} from arg");
+                }
+                else
+                {
+                    Tools.LogError($"Could not parse save arg slot={kv[1]}");
+                }
+            }
         }
     }
     public static string GetCurrentSaveFilename(string originalPath)
