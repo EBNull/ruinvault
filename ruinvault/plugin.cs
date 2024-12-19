@@ -1,59 +1,89 @@
 using System;
+using System.Reflection;
 using BepInEx;
 using BepInEx.Logging;
 using HarmonyLib;
 using UnityEngine;
+using System.Linq;
 
 namespace ruinvault;
+
+public struct FeatureWithProperties(IPluginFeature feature, bool EnabledByDefault=false, bool SurviveUnload=false) {
+	public IPluginFeature feature = feature;
+	public bool EnabledByDefault = EnabledByDefault;
+	public bool SurviveUnload = SurviveUnload;
+}
 
 [BepInPlugin(MyPluginInfo.PLUGIN_GUID, MyPluginInfo.PLUGIN_NAME, MyPluginInfo.PLUGIN_VERSION)]
 public class Plugin : BaseUnityPlugin
 {
-	private static readonly Harmony harmony = new(MyPluginInfo.PLUGIN_NAME);
-	private static readonly Harmony harmonyForever = new(MyPluginInfo.PLUGIN_NAME + "-forever");
+	private static readonly Harmony baseHarmony = new(MyPluginInfo.PLUGIN_NAME);
+	private static readonly Harmony foreverHarmony = new(MyPluginInfo.PLUGIN_NAME + "-forever");
 
-	// These patches will ~never get unloaded, even on reload
-	public static Type[] patchForeverClasses = [
-		typeof(PatchEnableSaveSlots), // Don't reload to ensure we don't overwrite saves
-	];
+	public FeatureWithProperties[] features = [];
+	
+	public Plugin() {
+		features = [
+			// Perma-enabled save slot support
+			new FeatureWithProperties(new WrapFeature(typeof(PatchEnableSaveSlots), foreverHarmony.Id, this.gameObject), true, true),
 
-	public static Type[] patchClasses = [
-		//typeof(PatchSetEditorFlag),
-		typeof(PatchAlsoSaveRawSaves),
-		typeof(PatchLoadRawSaves),
-		typeof(PatchEnableDevmenu),
-		typeof(PatchNoSteamRestart),
-		//typeof(PatchRiverAutoReset),
-		typeof(PatchShipSpeed), // maybe doesn't work? I haven't done a lot of a/b testing
-		typeof(PatchEnableDevModeSaves),
-		typeof(PatchEnablePhotoMode),
-		typeof(PatchFastFades),
-		typeof(PatchNoGhosts)
-		typeof(Assets),
-	];
+			// Mod development tools
+			new FeatureWithProperties(new WrapFeature(typeof(PatchNoSteamRestart), baseHarmony .Id, this.gameObject), true),
+			new FeatureWithProperties(new WrapFeature(typeof(PatchDisableUnityDevConsole), baseHarmony.Id, this.gameObject), true),
+			new FeatureWithProperties(new WrapFeature(typeof(PatchSetEditorFlag), baseHarmony.Id, this.gameObject), true),
+			
+			// Builtin development tools
+			new FeatureWithProperties(new WrapFeature(typeof(PatchEnableDevmenu), baseHarmony.Id, this.gameObject), true),
+
+			// Better Save Support 
+			new FeatureWithProperties(new WrapFeature(typeof(PatchEnableDevModeSaves), baseHarmony.Id, this.gameObject), true),
+			new FeatureWithProperties(new WrapFeature(typeof(PatchAlsoSaveRawSaves), baseHarmony.Id, this.gameObject), true),
+			new FeatureWithProperties(new WrapFeature(typeof(PatchLoadRawSaves), baseHarmony.Id, this.gameObject), true),
+			
+			// Unreliable / Not well tested
+			new FeatureWithProperties(new WrapFeature(typeof(PatchShipSpeed), baseHarmony.Id, this.gameObject), false),
+			
+			// Misc Options
+			new FeatureWithProperties(new WrapFeature(typeof(PatchEnablePhotoMode), baseHarmony.Id, this.gameObject), false),
+			new FeatureWithProperties(new WrapFeature(typeof(PatchRiverAutoReset), baseHarmony.Id, this.gameObject), false),
+
+			// Visuals
+			new FeatureWithProperties(new WrapFeature(typeof(PatchFastFades), baseHarmony.Id, this.gameObject), true),
+			new FeatureWithProperties(new WrapFeature(typeof(PatchNoGhosts), baseHarmony.Id, this.gameObject), false),
+			
+			// WIP
+			new FeatureWithProperties(new WrapFeature(typeof(Assets), baseHarmony.Id, this.gameObject), true),
+		];
+	}
 
 	private void Awake()
 	{
-		//Tools.StaticLogger = base.Logger;
-		Tools.Logger.LogInfo("Plugin ruinvault is loaded!");
+		Tools.LogInfo("Plugin ruinvault is loaded!");
+
 		var b = Baton.Get();
 		Tools.LogInfo($"{b.PluginAssemblies.Length} previous instances exist");
 		b.PluginAssemblies = b.PluginAssemblies.AddToArray(Assembly.GetExecutingAssembly().GetName().Name);
 		b.Commit();
 
+		Assets.MaybeDumpAssets();
+
 		EnableDebugOptions();
 
-		ApplyPatches();
+		SetupFeatures();
+		
 	}
 
 	void OnDestroy()
 	{
-		Tools.Logger.LogMessage("Unloading ruinvault");
-		harmony.UnpatchSelf();
-#if false
-			// forever patches are never removed
-			harmonyForever.UnpatchSelf();
-#endif
+		Tools.Logger.LogInfo("Unloading ruinvault");
+		foreach(var f in features) {
+			if (!f.SurviveUnload) {
+				f.feature.Disable();
+			} else {
+				var wf = f.feature as WrapFeature;
+				Tools.LogInfo($"Skipping unload of {wf?.Name() ?? f.feature.GetType().Name} because it must survive");
+			}
+		}
 	}
 
 	private void Update()
@@ -113,44 +143,52 @@ public class Plugin : BaseUnityPlugin
 
 		MonoSingleton<DebugOptions>.Instance.useInBuilds = true;
 		MonoSingleton<DebugOptions>.Instance.enabled = true;
-
 	}
 
-	void SafeApplyPatches(Harmony harmony, Type[] patchClasses)
+	void EnableFeatures(FeatureWithProperties[] features)
 	{
-		foreach (Type pc in patchClasses)
+		foreach (var fp in features)
 		{
-			var ts = Tools.GetTypeString(pc);
-			Exception? e = null;
+			var f = fp.feature;
+			var wf = f as WrapFeature;
+			var ts = Tools.GetTypeString(wf?.feature ?? f.GetType());
+			Tools.LogInfo($"Attempting to apply {ts}");
+			Console.Out.Flush();
+			Console.Error.Flush();
+			bool ok = false;
 			try
 			{
-				harmony.PatchAll(pc);
+				ok = f.Enable();
+			} catch (Exception e) {
+				Tools.LogError($"Failed to apply {ts}");
+				Tools.LogError(e.ToString());
+				Tools.LogMessage($"Failed to apply {ts}");
+			}
+			if (ok) {
 				Tools.LogInfo($"Applied {ts}");
 				Tools.LogMessage($"Applied {ts}");
-				continue;
 			}
-			catch (Exception ie)
-			{
-				e = ie;
-			}
-			Tools.LogError($"Failed to apply {ts}");
-			Tools.LogError(e.ToString());
-			Tools.LogMessage($"Failed to apply {ts}");
 		}
 	}
 
-	private void ApplyPatches()
+	private void SetupFeatures()
 	{
-		SafeApplyPatches(harmony, patchClasses);
-
 		var b = Baton.Get();
+		if (b.AlreadyPatchedSaveSlots) {
+			Tools.LogMessage("Reloading ruinvault");
+		} else {
+			Tools.LogMessage("Loading ruinvault");
+		}
+
+		EnableFeatures(features.Filter((FeatureWithProperties f) => f.EnabledByDefault & !f.SurviveUnload).ToArray());
+
 		if (b.AlreadyPatchedSaveSlots)
 		{
-			Tools.LogMessage("Reload detected; save slot support already patched");
+			Tools.LogInfo("Reload detected; save slot support already patched");
 			PatchLoadRawSaves.okToSave = b.OkToSave;
 			return;
 		}
-		SafeApplyPatches(harmonyForever, patchForeverClasses);
+		EnableFeatures(features.Filter((FeatureWithProperties f) => f.EnabledByDefault & f.SurviveUnload).ToArray());
 		b.AlreadyPatchedSaveSlots = true;
 		b.OkToSave = PatchLoadRawSaves.okToSave;
 		b.Commit();
