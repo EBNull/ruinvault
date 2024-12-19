@@ -10,6 +10,10 @@ cd "${HERE}"
 . "${HERE}/prereq.sh"
 
 PLUGIN_OUT_CYG="bin/Debug/net35/ruinvault.dll"
+PLUGIN_OUT_CYG_PDB="bin/Debug/net35/ruinvault.pdb"
+
+PLUGIN_ENGINE_OUT_CYG="bin/Debug/net35/ScriptEngine.dll"
+PLUGIN_ENGINE_OUT_CYG_PDB="bin/Debug/net35/ScriptEngine.pdb"
 
 makeclean() {
   rm -rf ../bin
@@ -36,7 +40,7 @@ makerefasm() {
 
 makebuild() {
   (
-    cd ../ruinvault
+    cd ..
     (
       set -x
       dotnet build
@@ -47,8 +51,19 @@ makebuild() {
 makedist() {
   (
     cd ..
-    mkdir -p dist/base/BepInEx/plugins
-    cp $PLUGIN_OUT_CYG dist/base/BepInEx/plugins
+    if false; then
+      mkdir -p dist/base/BepInEx/plugins
+      cp $PLUGIN_OUT_CYG dist/base/BepInEx/plugins
+      cp $PLUGIN_OUT_CYG_PDB dist/base/BepInEx/plugins
+    fi
+    if true; then
+      mkdir -p dist/base/BepInEx/scripts
+      cp $PLUGIN_OUT_CYG dist/base/BepInEx/scripts
+      cp $PLUGIN_OUT_CYG_PDB dist/base/BepInEx/scripts
+      mkdir -p dist/base/BepInEx/plugins
+      cp $PLUGIN_ENGINE_OUT_CYG dist/base/BepInEx/plugins
+      cp $PLUGIN_ENGINE_OUT_CYG_PDB dist/base/BepInEx/plugins
+    fi
     cp hv.sh dist/base
 
     mkdir -p dist/full
