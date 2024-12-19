@@ -3,8 +3,25 @@ using HarmonyLib;
 using UnityEngine;
 
 namespace ruinvault;
+
+[Feature(DefaultEnabled = true)]
 internal class Assets
 {
+    public Assets()
+    {
+        MaybeDumpAssets();
+    }
+
+    public static void MaybeDumpAssets()
+    {
+        var ap = PathUtil.ReplaceFilename(Game.Instance.savePath, "Assets");
+        Directory.CreateDirectory(ap);
+        foreach (var ai in GetAssetMap())
+        {
+            MaybeDumpAsset(ap, ai.filename, ai.asset);
+        }
+    }
+
     public struct FileTextAssetMap
     {
         public string filename;
@@ -29,16 +46,6 @@ internal class Assets
         if (!File.Exists(f))
         {
             Atomic.WriteFile(Path.Combine(dir, name), asset.text);
-        }
-    }
-
-    public static void MaybeDumpAssets()
-    {
-        var ap = PathUtil.ReplaceFilename(Game.Instance.savePath, "Assets");
-        Directory.CreateDirectory(ap);
-        foreach (var ai in GetAssetMap())
-        {
-            MaybeDumpAsset(ap, ai.filename, ai.asset);
         }
     }
 

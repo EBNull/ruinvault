@@ -4,7 +4,6 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using HarmonyLib;
-using JetBrains.Annotations;
 using Steamworks;
 using TMPro;
 using UnityEngine;
@@ -201,6 +200,13 @@ public class BaseSaveLoader
         {
             return new SimpleGameData();
         }
+        // lri has a few fields:
+        // 
+        // saveVersion (decoded as lri.saveVersion)
+        // meta (decoded as GameMetaInformation)
+        // state (decoded as GameStateInformation)
+        // gameData (decoded as Loader.Load - encodes fields of Game)
+        // ink (decoded as Story(StoryScript.inkAsset.text); story.state.LoadJson)
         var ret = JsonUtility.FromJson<SimpleGameData>(lri.gameDataJSON);
         ret._currentLocation ??= "";
         ret.lastNonShipLocation ??= "";

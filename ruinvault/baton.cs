@@ -12,9 +12,10 @@ using HarmonyLib; // For AddToArray
 // values.
 public class Baton
 {
-    public bool AlreadyPatchedSaveSlots;
-    public bool OkToSave;
+    public bool AppliedForeverPatches;
     public string[] PluginAssemblies = [];
+
+    public bool OkToSave;
 
     public static Baton Get()
     {
@@ -45,9 +46,9 @@ internal class BatonSerializer
             Tools.LogInfo($"Invalid Baton; type is {jo.type}");
             return b;
         }
-        jo.GetField(ref b.AlreadyPatchedSaveSlots, "AlreadyPatchedSaveSlots");
-        jo.GetField(ref b.OkToSave, "OkToSave");
-        var pa = jo.GetField("PluginAssemblies") ?? JSONObject.arr;
+        jo.GetField(ref b.AppliedForeverPatches, nameof(b.AppliedForeverPatches));
+        jo.GetField(ref b.OkToSave, nameof(b.OkToSave));
+        var pa = jo.GetField(nameof(b.PluginAssemblies)) ?? JSONObject.arr;
         for (var i = 0; i < pa.Count; i++)
         {
             if (pa[i].type == JSONObject.Type.STRING)
@@ -60,14 +61,14 @@ internal class BatonSerializer
     public static void SetCurrent(Baton value)
     {
         JSONObject jo = JSONObject.obj;
-        jo.SetField("AlreadyPatchedSaveSlots", value.AlreadyPatchedSaveSlots);
-        jo.SetField("OkToSave", value.OkToSave);
+        jo.SetField(nameof(value.AppliedForeverPatches), value.AppliedForeverPatches);
+        jo.SetField(nameof(value.OkToSave), value.OkToSave);
         var a = JSONObject.arr;
         foreach (var v in value.PluginAssemblies)
         {
             a.Add(v);
         }
-        jo.SetField("PluginAssemblies", a);
+        jo.SetField(nameof(value.PluginAssemblies), a);
         var s = jo.ToString();
         Tools.LogInfo($"Committing baton: {s}");
         new BatonPasser().Value = s;

@@ -9,6 +9,7 @@ using SpaceGame;
 
 namespace ruinvault;
 
+[Feature(DefaultEnabled = false)]
 internal class PatchShipSpeed
 {
 	[HarmonyPrefix, HarmonyPatch(typeof(SpaceGame.Ship.ShipMotorModule.RiverForceModule), "FixedUpdate")]
@@ -34,6 +35,7 @@ internal class PatchShipSpeed
 	}
 }
 
+[Feature(DefaultEnabled = false)]
 internal class PatchRiverAutoReset
 {
 	[HarmonyPostfix, HarmonyPatch(typeof(SpaceGame.Pathfinding.ShipPather), "TrySetCachedResetPoint")]

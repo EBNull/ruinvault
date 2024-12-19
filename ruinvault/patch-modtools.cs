@@ -14,6 +14,7 @@ using SpaceGame.Ship;
 
 namespace ruinvault;
 
+[Feature(DefaultEnabled = true)]
 internal class PatchNoSteamRestart
 {
 	[HarmonyPrefix, HarmonyPatch(typeof(Steamworks.SteamAPI), "RestartAppIfNecessary")]

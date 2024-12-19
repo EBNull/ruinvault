@@ -3,13 +3,13 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Data.SqlTypes;
-using System.Drawing.Text;
 using System.IO;
 using HarmonyLib;
 using SpaceGame.Ship;
 
 namespace ruinvault;
 
+[Feature(DefaultEnabled = true)]
 class PatchEnableDevmenu
 {
 	// https://github.com/BepInEx/HarmonyX/wiki/Enumerator-patches#notes-on-targeting-movenext

@@ -1,7 +1,6 @@
 
 using System;
 using System.Data.SqlTypes;
-using System.Drawing.Text;
 using System.IO;
 using HarmonyLib;
 using SpaceGame.Ship;
@@ -9,6 +8,7 @@ using UnityEngine;
 
 namespace ruinvault;
 
+[Feature(DefaultEnabled = true, SurviveUnload = true, Priority = -100)]
 class PatchEnableSaveSlots
 {
 	[HarmonyPostfix, HarmonyPatch(typeof(Game), "savePath", MethodType.Getter)]
@@ -26,6 +26,7 @@ class PatchEnableSaveSlots
 	}
 }
 
+[Feature(DefaultEnabled = true)]
 class PatchAlsoSaveRawSaves
 {
 	[HarmonyPrefix, HarmonyPatch(typeof(SaveThread), "SaveDesktop")]
@@ -44,6 +45,7 @@ class PatchAlsoSaveRawSaves
 	}
 }
 
+[Feature(DefaultEnabled = true)]
 class PatchLoadRawSaves
 {
 	public static int loadCount = 0;

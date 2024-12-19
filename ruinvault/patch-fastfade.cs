@@ -8,6 +8,7 @@ using Translation;
 
 namespace ruinvault;
 
+[Feature(DefaultEnabled = true)]
 internal class PatchFastFades
 {
 	private static void shortenLss(LoadingScreenSetup lss)

@@ -8,6 +8,7 @@ using HarmonyLib;
 
 namespace ruinvault;
 // FrameSwitcher.DropGhost
+[Feature(DefaultEnabled = false)]
 internal class PatchNoGhosts
 {
     [HarmonyPrefix, HarmonyPatch(typeof(FrameSwitcher), "DropGhost", new[] { typeof(UnityEngine.Vector3), typeof(UnityEngine.Quaternion), typeof(bool) })]
