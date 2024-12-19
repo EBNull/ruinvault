@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using BepInEx;
 using BepInEx.Logging;
 using HarmonyLib;
+using UnityEngine;
 
 namespace ruinvault;
 
@@ -46,5 +47,21 @@ internal class PatchEnableDevModeSaves
 	{
 		__result = true;
 		Tools.MaybeLogInfo(-1, " -> true; Dev saves enabled");
+	}
+
+}
+
+class PatchDisableUnityDevConsole : MonoBehaviour {
+	[HarmonyPostfix, HarmonyPatch(typeof(Debug), nameof(Debug.developerConsoleVisible), MethodType.Getter)]
+	private static void NoDevConsole(ref bool __result)
+	{
+		__result = false;
+		Tools.MaybeLogInfo(-1, " -> false; Unity developerConsoleVisible");
+	}
+
+	public void LateUpdate()
+	{
+		// Never helpful, only annoying. Pops up automatically.
+		Debug.developerConsoleVisible = false;
 	}
 }
