@@ -18,18 +18,13 @@ namespace ruinvault;
 public static class Tools
 {
 	public static ManualLogSource? StaticLogger;
-	private static ManualLogSource? UninitLogger;
+	private static readonly ManualLogSource UninitLogger = BepInEx.Logging.Logger.CreateLogSource("ruinvault");
 
 	public static ManualLogSource Logger
 	{
 		get
 		{
-			if (StaticLogger == null)
-			{
-				UninitLogger ??= BepInEx.Logging.Logger.CreateLogSource("ruinvault");
-				return UninitLogger;
-			}
-			return StaticLogger;
+			return StaticLogger ?? UninitLogger;
 		}
 	}
 
