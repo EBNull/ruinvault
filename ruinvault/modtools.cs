@@ -115,7 +115,7 @@ public static class Tools
 			maybeDt = $" [patching {dt}]";
 		}
 		var pstr = m.GetParameters().Join((ParameterInfo p) => p.ToString(), ", ");
-		return $"{t}{m.Name}{maybeDt}";
+		return $"{t}.{m.Name}{maybeDt}";
 	}
 
 	[MethodImpl(MethodImplOptions.NoInlining)]
