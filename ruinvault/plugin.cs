@@ -35,6 +35,10 @@ public class Plugin : BaseUnityPlugin
 	{
 		//Tools.StaticLogger = base.Logger;
 		Tools.Logger.LogInfo("Plugin ruinvault is loaded!");
+		var b = Baton.Get();
+		Tools.LogInfo($"{b.PluginAssemblies.Length} previous instances exist");
+		b.PluginAssemblies = b.PluginAssemblies.AddToArray(Assembly.GetExecutingAssembly().GetName().Name);
+		b.Commit();
 
 		EnableDebugOptions();
 
