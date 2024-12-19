@@ -108,6 +108,10 @@ makerun() {
   "${HOST_GAMEEXE}" -slot=${slot:-4}
 }
 
+makebrun() {
+  "${HOST_GAMEEXE}" -slot=${slot:-4} &
+}
+
 makelogs() {
   cat "${HOST_GAMEDIR}\\BepInEx\\LogOutput.log"
 }
@@ -126,12 +130,13 @@ makemakefile() {
   echo -e "Makefile: util/maker.sh\n\t@util/maker.sh makemakefile\n" >>../Makefile
   declare -A tgts
 
-  for n in clean dist build refasm run logs gamelogs makefile preclean paths install install-full; do
+  for n in clean dist build refasm run brun logs gamelogs makefile preclean paths install install-full; do
     tgts["$n"]=""
   done
 
   tgts[build]="refasm"
   tgts[run]="dist install"
+  tgts[brun]="dist install"
   tgts[dist]="build"
   tgts[install]="build dist"
   tgts["install-full"]="build dist"

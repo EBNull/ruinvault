@@ -13,6 +13,10 @@ push: build dist
 clean: 
 	@./util/maker.sh makeclean
 
+.PHONY: brun
+brun: dist install
+	@./util/maker.sh makebrun
+
 .PHONY: gamelogs
 gamelogs: 
 	@./util/maker.sh makegamelogs
