@@ -29,6 +29,7 @@ public class Plugin : BaseUnityPlugin
 		typeof(PatchEnablePhotoMode),
 		typeof(PatchFastFades),
 		typeof(PatchNoGhosts)
+		typeof(Assets),
 	];
 
 	private void Awake()
