@@ -40,7 +40,7 @@ public static class Tools
 		System.Diagnostics.Process.GetCurrentProcess().Kill();
 	}
 
-	public static Dictionary<string, int> timesPerformed = new();
+	public static Dictionary<string, int> timesPerformed = [];
 	public static void MaybeDo(int maxTimes, string key, Action act)
 	{
 		int count = 1;
@@ -112,10 +112,10 @@ public static class Tools
 		var maybeDt = "";
 		if (dt.Length > 0)
 		{
-			maybeDt = $"[{dt}] ";
+			maybeDt = $" [patching {dt}]";
 		}
 		var pstr = m.GetParameters().Join((ParameterInfo p) => p.ToString(), ", ");
-		return $"{maybeDt}{t}.{m.Name}({pstr})";
+		return $"{t}{m.Name}{maybeDt}";
 	}
 
 	[MethodImpl(MethodImplOptions.NoInlining)]
