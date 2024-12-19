@@ -136,14 +136,15 @@ public class Plugin : BaseUnityPlugin
 	{
 		SafeApplyPatches(harmony, patchClasses);
 		
-		var b = Baton.GetCurrent();
+		var b = Baton.Get();
 		if (b.AlreadyPatchedSaveSlots) {
 			Tools.LogMessage("Reload detected; save slot support already patched");
+			PatchLoadRawSaves.okToSave = b.OkToSave;
 			return;
 		}
 		SafeApplyPatches(harmonyForever, patchForeverClasses);
-		PatchLoadRawSaves.okToSave = true; // Already accepted startup block
 		b.AlreadyPatchedSaveSlots = true;
-		Baton.SetCurrent(b);
+		b.OkToSave = PatchLoadRawSaves.okToSave;
+		b.Commit();
 	}
 }

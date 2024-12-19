@@ -7,23 +7,52 @@ using System.Net;
 using Steamworks;
 using UnityEngine;
 using ActionIcon;
+using ruinvault;
 
-[Serializable]
-public struct Baton {
+public class Baton {
     public bool AlreadyPatchedSaveSlots;
-
-    public static Baton GetCurrent() {
-        var v = new BatonPasser().Value;
-        return new Baton{
-            // This is gross but I am lazy
-            AlreadyPatchedSaveSlots = bool.Parse(v)
-        };
+    public bool OkToSave;
+    
+    public static Baton Get() {
+        return BatonSerializer.GetCurrent();
     }
-    public static void SetCurrent(Baton value) {
-        new BatonPasser().Value = value.AlreadyPatchedSaveSlots.ToString();
+
+    public void Commit() {
+        BatonSerializer.SetCurrent(this);
     }
 }
 
+// BatonSerializer manages a typed process-local Baton and manages
+// converting the fields to and from the string value.
+//
+// New loads of this assembly may add or remove fields.
+//
+internal class BatonSerializer {
+    public static Baton GetCurrent() {
+        var b = new Baton{};
+        var v = new BatonPasser().Value;
+        JSONObject jo = new(v, true);
+        Tools.LogInfo($"Loading baton: {v}");
+        if (jo.type != JSONObject.Type.OBJECT) {
+            Tools.LogInfo($"Invalid Baton; type is {jo.type}");
+            return b;
+        }
+        jo.GetField(ref b.AlreadyPatchedSaveSlots, "AlreadyPatchedSaveSlots");
+        jo.GetField(ref b.OkToSave, "OkToSave");
+        return b;
+    }
+    public static void SetCurrent(Baton value) {
+        JSONObject jo = new(JSONObject.Type.OBJECT);
+        jo.SetField("AlreadyPatchedSaveSlots", value.AlreadyPatchedSaveSlots);
+        jo.SetField("OkToSave", value.OkToSave);
+        var s = jo.ToString();
+        Tools.LogInfo($"Committing baton: {s}");
+        new BatonPasser().Value = s;
+    }
+}
+
+// BatonPasser manages a process-local global type by name that crosses assemblies.
+// The type has a single string field, Value, which is get/set across assembly instances.
 internal class BatonPasser {
     readonly Type universalBatonType;
 

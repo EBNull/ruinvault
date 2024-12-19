@@ -32,7 +32,7 @@ class PatchAlsoSaveRawSaves
 	private static bool SaveDesktop(SaveThread __instance, ref string saveData, ref string __result)
 	{
 		if (!PatchLoadRawSaves.okToSave) {
-			__result = "Skipping save because save slot message has not been accepted";
+			__result = $"Skipping save because save slot message has not been accepted (loadCount = {PatchLoadRawSaves.loadCount})";
 			Tools.LogMessage(__result);
 			return false;
 		}
@@ -45,7 +45,7 @@ class PatchAlsoSaveRawSaves
 
 class PatchLoadRawSaves
 {
-	static int loadCount = 0;
+	public static int loadCount = 0;
 	public static bool okToSave = false;
 
 	static void MaybeMessageSaveNotice(BetterSaves.SaveSelectionInfo? sel) {
@@ -74,7 +74,10 @@ class PatchLoadRawSaves
 				msg += "\n\n<size=45%>Set Steam launch options to `%command% -slot=#` to select slot";
 			}
 			GameLib.MessageBox($"Using save slot {BetterSaves.saveSlot}", msg, "Continue", () => {
-				okToSave = true;
+				okToSave = true; // Explicitly accepted
+				var b = Baton.Get();
+				b.OkToSave = true;
+				b.Commit();
 				ls.enabled = true;
 			}, "Exit", () => {
 				Tools.Die();
