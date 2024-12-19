@@ -9,9 +9,16 @@ namespace ruinvault;
 [BepInPlugin(MyPluginInfo.PLUGIN_GUID, MyPluginInfo.PLUGIN_NAME, MyPluginInfo.PLUGIN_VERSION)]
 public class Plugin : BaseUnityPlugin
 {
+	private static readonly Harmony harmony = new(MyPluginInfo.PLUGIN_NAME);
+	private static readonly Harmony harmonyForever = new(MyPluginInfo.PLUGIN_NAME + "-forever");
+
+	// These patches will ~never get unloaded, even on reload
+	public static Type[] patchForeverClasses = [
+		typeof(PatchEnableSaveSlots), // Don't reload to ensure we don't overwrite saves
+	];
+
 	public static Type[] patchClasses = [
 		//typeof(PatchSetEditorFlag),
-		typeof(PatchEnableSaveSlots),
 		typeof(PatchAlsoSaveRawSaves),
 		typeof(PatchLoadRawSaves),
 		typeof(PatchEnableDevmenu),
@@ -32,8 +39,15 @@ public class Plugin : BaseUnityPlugin
 		EnableDebugOptions();
 
 		ApplyPatches();
-
-
+	}
+	
+	void OnDestroy() {
+		Tools.Logger.LogMessage("Unloading ruinvault");
+		harmony.UnpatchSelf();
+		#if false
+			// forever patches are never removed
+			harmonyForever.UnpatchSelf();
+		#endif
 	}
 
 	private void Update()
@@ -96,15 +110,14 @@ public class Plugin : BaseUnityPlugin
 
 	}
 
-	private void ApplyPatches()
-	{
+	void SafeApplyPatches(Harmony harmony, Type[] patchClasses) {
 		foreach (Type pc in patchClasses)
 		{
 			var ts = Tools.GetTypeString(pc);
 			Exception? e = null;
 			try
 			{
-				Harmony.CreateAndPatchAll(pc);
+				harmony.PatchAll(pc);
 				Tools.LogInfo($"Applied {ts}");
 				Tools.LogMessage($"Applied {ts}");
 				continue;
@@ -117,5 +130,20 @@ public class Plugin : BaseUnityPlugin
 			Tools.LogError(e.ToString());
 			Tools.LogMessage($"Failed to apply {ts}");
 		}
+	}
+
+	private void ApplyPatches()
+	{
+		SafeApplyPatches(harmony, patchClasses);
+		
+		var b = Baton.GetCurrent();
+		if (b.AlreadyPatchedSaveSlots) {
+			Tools.LogMessage("Reload detected; save slot support already patched");
+			return;
+		}
+		SafeApplyPatches(harmonyForever, patchForeverClasses);
+		PatchLoadRawSaves.okToSave = true; // Already accepted startup block
+		b.AlreadyPatchedSaveSlots = true;
+		Baton.SetCurrent(b);
 	}
 }
