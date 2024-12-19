@@ -33,7 +33,7 @@ public class Plugin : BaseUnityPlugin
 
 	private void Awake()
 	{
-		Tools.StaticLogger = base.Logger;
+		//Tools.StaticLogger = base.Logger;
 		Tools.Logger.LogInfo("Plugin ruinvault is loaded!");
 
 		EnableDebugOptions();
