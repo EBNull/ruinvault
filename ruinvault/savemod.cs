@@ -49,12 +49,15 @@ public class BetterSaves
             }
         }
         var args = System.Environment.GetCommandLineArgs();
-        foreach (var arg in args) {
-            var kv = arg.Split(new char[]{'='}, 2);
-            if (kv.Length != 2) {
+        foreach (var arg in args)
+        {
+            var kv = arg.Split(new char[] { '=' }, 2);
+            if (kv.Length != 2)
+            {
                 continue;
             }
-            if (kv[0].ToLower() == "slot" || kv[0].ToLower() == "-slot") {
+            if (kv[0].ToLower() == "slot" || kv[0].ToLower() == "-slot")
+            {
                 int slot = 2;
                 if (Int32.TryParse(kv[1], out slot))
                 {
@@ -109,7 +112,8 @@ public class BetterSaves
             var ret = rawFile;
             return new SaveSelectionInfo(ret, $"Crypt save is missing or invalid");
         }
-        if (rawFile == cryptFile) {
+        if (rawFile == cryptFile)
+        {
             var ret = cryptFile;
             return new SaveSelectionInfo(ret, $"Crypt and raw saves are identical");
         }
@@ -185,13 +189,16 @@ public class BaseSaveLoader
         return gsi.totalPlayTime;
     }
     [Serializable]
-    public class SimpleGameData {
+    public class SimpleGameData
+    {
         public string _currentLocation = "";
         public string lastNonShipLocation = "";
         public int numTimesGameCompleted = 0;
     }
-    public SimpleGameData GetSimpleGameData() {
-        if (lri == null) {
+    public SimpleGameData GetSimpleGameData()
+    {
+        if (lri == null)
+        {
             return new SimpleGameData();
         }
         var ret = JsonUtility.FromJson<SimpleGameData>(lri.gameDataJSON);
@@ -199,12 +206,14 @@ public class BaseSaveLoader
         ret.lastNonShipLocation ??= "";
         return ret;
     }
-    public string GetPlaytimeString() {
+    public string GetPlaytimeString()
+    {
         var d = GetPlaytime();
         TimeSpan ts = TimeSpan.FromSeconds(d);
         return $"{ts.Hours}h {ts.Minutes}m {ts.Seconds}s {ts.Milliseconds}ms ({d}s total)";
     }
-    public string Describe() {
+    public string Describe()
+    {
         var gi = GetSimpleGameData();
         string[] lines = [
             $"Completed game {gi.numTimesGameCompleted} times",
@@ -259,10 +268,12 @@ public class SaveLoader(string? name, string? data) : BaseSaveLoader(name, data)
         if (l == r) { return false; }
         return true;
     }
-    public static bool operator <=(SaveLoader l, SaveLoader r) {
+    public static bool operator <=(SaveLoader l, SaveLoader r)
+    {
         return l < r | l == r;
     }
-    public static bool operator >=(SaveLoader l, SaveLoader r) {
+    public static bool operator >=(SaveLoader l, SaveLoader r)
+    {
         return l > r | l == r;
     }
     public static SaveLoader FromRawFile(string filePath)

@@ -31,7 +31,8 @@ class PatchAlsoSaveRawSaves
 	[HarmonyPrefix, HarmonyPatch(typeof(SaveThread), "SaveDesktop")]
 	private static bool SaveDesktop(SaveThread __instance, ref string saveData, ref string __result)
 	{
-		if (!PatchLoadRawSaves.okToSave) {
+		if (!PatchLoadRawSaves.okToSave)
+		{
 			__result = $"Skipping save because save slot message has not been accepted (loadCount = {PatchLoadRawSaves.loadCount})";
 			Tools.LogMessage(__result);
 			return false;
@@ -48,38 +49,49 @@ class PatchLoadRawSaves
 	public static int loadCount = 0;
 	public static bool okToSave = false;
 
-	static void MaybeMessageSaveNotice(BetterSaves.SaveSelectionInfo? sel) {
+	static void MaybeMessageSaveNotice(BetterSaves.SaveSelectionInfo? sel)
+	{
 		loadCount++;
 		var slot = BetterSaves.saveSlot;
 		var maybeWarn = "";
-		if (slot != 0) {
+		if (slot != 0)
+		{
 			maybeWarn = "<size=80%>This save file <b>will not</b> be synced to the cloud.<br>";
-		} else {
+		}
+		else
+		{
 			maybeWarn = "<size=50%>This save file <b>will</b> be synced to the cloud.<br>";
 		}
-		if (loadCount == 1) {
+		if (loadCount == 1)
+		{
 			var ls = LoadingScreenController.Instance;
 			ls.enabled = false;
 			var filename = Path.GetFileName(Game.Instance.savePath);
 			var msg = $"{maybeWarn}<size=50%>Starting a new game at {filename}";
-			if (sel != null) {
+			if (sel != null)
+			{
 				var gi = sel?.file.GetSimpleGameData();
 				msg = $"{maybeWarn}";
 				msg += $"<size=50%>{sel?.file.Describe()}\n\n";
 				msg += $"<size=50%>Loading {Path.GetFileName(sel?.file.name)}\n{sel?.reason}";
 			}
-			if (Tools.IsOnSteamDeck()) {
+			if (Tools.IsOnSteamDeck())
+			{
 				msg += "\n\n<size=45%>Set Steam launch options to `./hv.sh %command% -slot=#` to select slot";
-			} else {
+			}
+			else
+			{
 				msg += "\n\n<size=45%>Set Steam launch options to `%command% -slot=#` to select slot";
 			}
-			GameLib.MessageBox($"Using save slot {BetterSaves.saveSlot}", msg, "Continue", () => {
+			GameLib.MessageBox($"Using save slot {BetterSaves.saveSlot}", msg, "Continue", () =>
+			{
 				okToSave = true; // Explicitly accepted
 				var b = Baton.Get();
 				b.OkToSave = true;
 				b.Commit();
 				ls.enabled = true;
-			}, "Exit", () => {
+			}, "Exit", () =>
+			{
 				Tools.Die();
 			});
 		}
@@ -90,7 +102,8 @@ class PatchLoadRawSaves
 	[HarmonyPostfix, HarmonyPatch(typeof(Game), "DesktopSaveFileExists")]
 	private static void DesktopSaveFileExist(ref bool __result)
 	{
-		if (!__result) {
+		if (!__result)
+		{
 			MaybeMessageSaveNotice(null);
 		}
 	}

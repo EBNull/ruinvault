@@ -44,14 +44,15 @@ public class Plugin : BaseUnityPlugin
 
 		ApplyPatches();
 	}
-	
-	void OnDestroy() {
+
+	void OnDestroy()
+	{
 		Tools.Logger.LogMessage("Unloading ruinvault");
 		harmony.UnpatchSelf();
-		#if false
+#if false
 			// forever patches are never removed
 			harmonyForever.UnpatchSelf();
-		#endif
+#endif
 	}
 
 	private void Update()
@@ -114,7 +115,8 @@ public class Plugin : BaseUnityPlugin
 
 	}
 
-	void SafeApplyPatches(Harmony harmony, Type[] patchClasses) {
+	void SafeApplyPatches(Harmony harmony, Type[] patchClasses)
+	{
 		foreach (Type pc in patchClasses)
 		{
 			var ts = Tools.GetTypeString(pc);
@@ -139,9 +141,10 @@ public class Plugin : BaseUnityPlugin
 	private void ApplyPatches()
 	{
 		SafeApplyPatches(harmony, patchClasses);
-		
+
 		var b = Baton.Get();
-		if (b.AlreadyPatchedSaveSlots) {
+		if (b.AlreadyPatchedSaveSlots)
+		{
 			Tools.LogMessage("Reload detected; save slot support already patched");
 			PatchLoadRawSaves.okToSave = b.OkToSave;
 			return;

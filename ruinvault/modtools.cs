@@ -126,11 +126,12 @@ public static class Tools
 
 		return GetMethodString(sf.GetMethod());
 	}
-	
-	[DllImport("user32.dll", SetLastError = true, CharSet= CharSet.Unicode)]
+
+	[DllImport("user32.dll", SetLastError = true, CharSet = CharSet.Unicode)]
 	public static extern int MessageBoxW(IntPtr hWnd, String text, String caption, uint type);
-	
-	public static void MessageBox(string title, string msg) {
-		MessageBoxW(IntPtr.Zero, msg??"", title??"", 0);
+
+	public static void MessageBox(string title, string msg)
+	{
+		MessageBoxW(IntPtr.Zero, msg ?? "", title ?? "", 0);
 	}
 }
