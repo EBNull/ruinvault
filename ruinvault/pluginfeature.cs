@@ -12,13 +12,14 @@ using ruinvault;
 using UnityEngine;
 using UnityEngine.Assertions;
 
-public class FeatureData(Type type, string Name = "", string Description = "", bool DefaultEnabled = false, bool SurviveUnload = false, int Priority = 0)
+public class FeatureData(Type type, string Name = "", string Description = "", bool DefaultEnabled = false, bool SurviveUnload = false, int Priority = 0, bool IngameToggle = false)
 {
     public Type Type = type;
     public string Name = Name;
-    string Description = Description;
+    public string Description = Description;
     public bool DefaultEnabled = DefaultEnabled;
     public bool SurviveUnload = SurviveUnload;
+    public bool IngameToggle = IngameToggle;
     public int Priority = Priority;
 }
 
@@ -30,6 +31,7 @@ public class FeatureAttribute(string _Name = "") : System.Attribute
     public string Description = "";
     public bool DefaultEnabled = false;
     public bool SurviveUnload = false;
+    public bool IngameToggle = false;
     public int Priority = 0;
 
     public static Type[] GetAnnotatedTypes(Assembly asm)
@@ -44,7 +46,7 @@ public class FeatureAttribute(string _Name = "") : System.Attribute
     {
         var ret = (from type in GetAnnotatedTypes(asm)
                    from attr in type.GetCustomAttributes(typeof(FeatureAttribute), false).Map((object f) => (FeatureAttribute)f)
-                   select new FeatureData(type, attr._Name == "" ? type.Name : attr._Name, attr.Description, attr.DefaultEnabled, attr.SurviveUnload, attr.Priority)
+                   select new FeatureData(type, attr._Name == "" ? type.Name : attr._Name, attr.Description, attr.DefaultEnabled, attr.SurviveUnload, attr.Priority, attr.IngameToggle)
 
         ).ToArray();
         Array.Sort(ret, (FeatureData l, FeatureData r) => l.Priority - r.Priority);
@@ -54,6 +56,7 @@ public class FeatureAttribute(string _Name = "") : System.Attribute
 
 public interface IPluginFeature
 {
+    bool IsEnabled();
     bool Enable();
     void Disable();
 }
@@ -75,6 +78,12 @@ public class WrapFeature(Type feature, string harmonyBaseId, GameObject? unityPa
     public Type feature = feature;
     object? instance;
     readonly Harmony harmony = new($"{harmonyBaseId}-{feature.Name}");
+    private bool enabled;
+
+    public bool IsEnabled()
+    {
+        return enabled;
+    }
 
     virtual public string Name()
     {
@@ -139,6 +148,7 @@ public class WrapFeature(Type feature, string harmonyBaseId, GameObject? unityPa
             }
 
             instance = b;
+            enabled = true;
             return true;
         }
 
@@ -160,6 +170,7 @@ public class WrapFeature(Type feature, string harmonyBaseId, GameObject? unityPa
             return false;
         }
 
+        enabled = true;
         return true;
     }
 
@@ -248,5 +259,6 @@ public class WrapFeature(Type feature, string harmonyBaseId, GameObject? unityPa
         }
         Tools.LogInfo($"Removing patches for {Name()}");
         harmony.UnpatchSelf();
+        enabled = false;
     }
 }

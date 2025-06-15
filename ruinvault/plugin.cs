@@ -5,15 +5,18 @@ using HarmonyLib;
 using System.Linq;
 using System.Security;
 using System.Diagnostics;
+using System.ComponentModel;
 
 namespace ruinvault;
 
-public struct FeatureWithProperties(IPluginFeature feature, string Name, bool EnabledByDefault = false, bool SurviveUnload = false, int Priority = 0)
+public struct FeatureWithProperties(IPluginFeature feature, string Name, string Description, bool EnabledByDefault = false, bool SurviveUnload = false, int Priority = 0, bool IngameToggle = false)
 {
 	public IPluginFeature feature = feature;
 	public string Name = Name;
+	public string Description = Description;
 	public bool EnabledByDefault = EnabledByDefault;
 	public bool SurviveUnload = SurviveUnload;
+	public bool IngameToggle = IngameToggle;
 	public int Priority = Priority;
 }
 
@@ -27,19 +30,20 @@ public class Plugin : BaseUnityPlugin
 
 	public Plugin()
 	{
+		Tools.LogInfo($"Plugin {MyPluginInfo.PLUGIN_NAME} is being constructed");
 		if (this.gameObject is null)
 		{
 			throw new Exception("gameObject is null");
 		}
+		Tools.CurrentPlugin = this;
 
-		features = FeatureAttribute.GetData(Assembly.GetExecutingAssembly()).Map((FeatureData fd) =>
-			new FeatureWithProperties(new WrapFeature(fd.Type, foreverHarmony.Id, this.gameObject), fd.Name, fd.DefaultEnabled, fd.SurviveUnload, fd.Priority)
+		features = FeatureAttribute.GetData(Assembly.GetExecutingAssembly()).Map(fd => new FeatureWithProperties(new WrapFeature(fd.Type, foreverHarmony.Id, this.gameObject), fd.Name, fd.Description, fd.DefaultEnabled, fd.SurviveUnload, fd.Priority, fd.IngameToggle)
 		).ToArray();
 		Array.Sort(features, (FeatureWithProperties l, FeatureWithProperties r) => l.Priority - r.Priority);
 
 		foreach (var f in features)
 		{
-			Tools.LogInfo($"Loaded FeatureData: {f.Name} EnabledByDefault={f.EnabledByDefault} SurviveUnload={f.SurviveUnload}, Priority = {f.Priority}");
+			Tools.LogInfo($"Loaded FeatureData: {f.Name} EnabledByDefault={f.EnabledByDefault} SurviveUnload={f.SurviveUnload}, IngameToggle = {f.IngameToggle}, Priority = {f.Priority}");
 		}
 		if (features.Length == 0)
 		{
@@ -49,7 +53,7 @@ public class Plugin : BaseUnityPlugin
 
 	private void Awake()
 	{
-		Tools.LogInfo($"Plugin {MyPluginInfo.PLUGIN_NAME} is loaded!");
+		Tools.LogInfo($"Plugin {MyPluginInfo.PLUGIN_NAME} is awake!");
 
 		var b = Baton.Get();
 		Tools.LogInfo($"{b.PluginAssemblies.Length} previous instances exist");

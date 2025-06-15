@@ -9,7 +9,7 @@ using HarmonyLib;
 
 namespace ruinvault;
 
-[Feature(DefaultEnabled = false, Description = "BROKEN. Enable sailing to anywhere (but if the story blocks you, the game crashes)")]
+[Feature(DefaultEnabled = false, Description = "BROKEN. Enable sailing to anywhere (but if the story blocks you, the game crashes)", IngameToggle = false)]
 internal class PatchMapLocationPlottable
 {
     [HarmonyPostfix, HarmonyPatch(typeof(Game), nameof(Game.MapStateForLocation))]

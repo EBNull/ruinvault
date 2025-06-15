@@ -9,7 +9,7 @@ using Microsoft.Win32;
 
 namespace ruinvault;
 // FrameSwitcher.DropGhost
-[Feature(DefaultEnabled = false)]
+[Feature(DefaultEnabled = false, IngameToggle = true, Description = "Do not leave ghost trails on characters")]
 internal class PatchNoGhosts
 {
     [HarmonyPrefix, HarmonyPatch(typeof(FrameSwitcher), "DropGhost", new[] { typeof(UnityEngine.Vector3), typeof(UnityEngine.Quaternion), typeof(bool) })]

@@ -18,6 +18,7 @@ namespace ruinvault;
 public static class Tools
 {
 	public static ManualLogSource? StaticLogger;
+	public static Plugin? CurrentPlugin;
 	private static readonly ManualLogSource UninitLogger = BepInEx.Logging.Logger.CreateLogSource(Assembly.GetExecutingAssembly().GetName().Name);
 
 	public static ManualLogSource Logger
