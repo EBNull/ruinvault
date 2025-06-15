@@ -16,6 +16,8 @@ class PatchEnableDevmenu
 	[HarmonyPostfix, HarmonyPatch(typeof(TitleAndPauseMainMenuPanel), "GetOptions")]
 	static IEnumerable<TitleAndPauseItem> GetOptions(IEnumerable<TitleAndPauseItem> __result)
 	{
+		// TODO: loading these with instantiate means we never remove them; this can lead to lag as these build up
+		
 		var devItem = TitleAndPauseUI.Instance.buttonPrototype.Instantiate<TitleAndPauseButtonOption>(delegate (TitleAndPauseButtonOption option)
 		{
 			option.text.text = "Dev Menu (EVERYTHING HERE CAN BREAK YOUR SAVE)";
@@ -30,15 +32,11 @@ class PatchEnableDevmenu
 				);
 			};
 		});
-		var i = 0;
+
+		yield return devItem;
 		foreach (var item in __result)
 		{
-			if (i == 1)
-			{
-				yield return devItem;
-			}
 			yield return item;
-			i += 1;
 		}
 	}
 
