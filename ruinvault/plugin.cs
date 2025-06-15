@@ -27,6 +27,11 @@ public class Plugin : BaseUnityPlugin
 
 	public Plugin()
 	{
+		if (this.gameObject is null)
+		{
+			throw new Exception("gameObject is null");
+		}
+
 		features = FeatureAttribute.GetData(Assembly.GetExecutingAssembly()).Map((FeatureData fd) =>
 			new FeatureWithProperties(new WrapFeature(fd.Type, foreverHarmony.Id, this.gameObject), fd.Name, fd.DefaultEnabled, fd.SurviveUnload, fd.Priority)
 		).ToArray();
