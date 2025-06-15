@@ -64,7 +64,7 @@ class DisableUnityDevConsole : MonoBehaviour
 		Tools.MaybeLogInfo(-1, " -> false; Unity developerConsoleVisible");
 	}
 
-	public void LateUpdate()
+	void LateUpdate()
 	{
 		// Never helpful, only annoying. Pops up automatically.
 		Debug.developerConsoleVisible = false;
