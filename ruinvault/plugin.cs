@@ -61,7 +61,7 @@ public class Plugin : BaseUnityPlugin
 
 	void OnDestroy()
 	{
-		Tools.Logger.LogInfo($"Unloading {MyPluginInfo.PLUGIN_NAME}");
+		Tools.LogInfo($"Unloading {MyPluginInfo.PLUGIN_NAME}");
 		foreach (var f in features)
 		{
 			if (!f.SurviveUnload)
@@ -74,6 +74,7 @@ public class Plugin : BaseUnityPlugin
 				Tools.LogInfo($"Skipping unload of {wf?.Name() ?? f.feature.GetType().Name} because it must survive");
 			}
 		}
+		Tools.LogInfo($"Plugin.OnDestroy() complete");
 	}
 
 	void EnableFeatures(FeatureWithProperties[] features)
