@@ -240,7 +240,8 @@ public class WrapFeature(Type feature, string harmonyBaseId, GameObject? unityPa
             {
                 Tools.LogError($"Unparenting {go}");
                 go.transform.parent = null;
-                MonoBehaviour.DestroyImmediate(go);
+                // Don't use DestroyImmediate here: "Destroying object multiple times. Don't use DestroyImmediate on the same object in OnDisable or OnDestroy."
+                MonoBehaviour.Destroy(go);
             }
             (instance as IDisposable)?.Dispose();
             instance = null;
