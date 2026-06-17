@@ -40,7 +40,13 @@ clone_and_patch_refasm() {
       git reset --hard dea5ef565854209bb2dfb8c911e830f5abbf9422
     fi
     if [ ! -n "${NOPATCH:-}" ]; then
-      git am ${ABS_PATCH_DIR}/*.patch
+      # if you try to apply the patches directly,
+      # git says the files cannot be found.
+      # but copying them works.
+      for f in ${ABS_PATCH_DIR}/*.patch; do
+          cp ${f} .
+      done
+      git am *.patch
     fi
   )
 }
